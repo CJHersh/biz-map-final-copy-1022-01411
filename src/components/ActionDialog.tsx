@@ -117,6 +117,7 @@ export const ActionDialog = ({ open, onOpenChange, action, domains, onSave }: Ac
       availabilityEnd: availability === "date-range" ? new Date(availabilityEnd) : undefined,
       communicationPolicy,
       eligibilityPolicy,
+      triggerLogic: "",
       status,
       createdBy: action?.createdBy || "Current User",
     });

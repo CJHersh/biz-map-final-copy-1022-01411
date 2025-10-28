@@ -12,6 +12,7 @@ import { useBusinessMap } from "@/hooks/use-business-map";
 import { PolicySelector } from "@/components/PolicySelector";
 import { PolicyCard } from "@/components/PolicyCard";
 import { DeleteDialog } from "@/components/DeleteDialog";
+import { InheritedPolicyBadge } from "@/components/InheritedPolicyBadge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Save, X, Plus, Edit2, Eye, EyeOff, BarChart3, Trash2, Hash, Calendar, User, Activity, ExternalLink, Layers } from "lucide-react";
 import type { Domain } from "@/hooks/use-business-map";
@@ -21,7 +22,7 @@ const DomainForm = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const domainId = searchParams.get("id");
-  const { domains, setDomains, actions, setActions } = useBusinessMap();
+  const { domains, setDomains, actions, setActions, globalPolicies } = useBusinessMap();
 
   const existingDomain = domainId ? domains.find((d) => d.id === domainId) : undefined;
   const isEditMode = !!existingDomain;
@@ -33,8 +34,9 @@ const DomainForm = () => {
   
   const [communicationPolicies, setCommunicationPolicies] = useState<PolicyArtifact[]>([]);
   const [eligibilityPolicies, setEligibilityPolicies] = useState<PolicyArtifact[]>([]);
+  const [triggerLogic, setTriggerLogic] = useState<PolicyArtifact[]>([]);
   const [showPolicySelector, setShowPolicySelector] = useState(false);
-  const [policyType, setPolicyType] = useState<"communication" | "eligibility">("communication");
+  const [policyType, setPolicyType] = useState<"communication" | "eligibility" | "trigger">("communication");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Update form state when domain data loads from localStorage
@@ -66,6 +68,17 @@ const DomainForm = () => {
           lastUpdated: new Date(),
         }));
         setEligibilityPolicies(eligPolicies);
+      }
+      if (existingDomain.triggerLogic) {
+        const triggerPolicies = existingDomain.triggerLogic.split(", ").filter(p => p).map(name => ({
+          id: `domain-trigger-${name}`,
+          name,
+          description: "Domain trigger logic",
+          type: "ruleset" as const,
+          version: "1.0",
+          lastUpdated: new Date(),
+        }));
+        setTriggerLogic(triggerPolicies);
       }
     }
   }, [existingDomain?.id]);
@@ -101,6 +114,7 @@ const DomainForm = () => {
               status,
               communicationPolicy: communicationPolicies.map(p => p.name).join(", "),
               eligibilityPolicy: eligibilityPolicies.map(p => p.name).join(", "),
+              triggerLogic: triggerLogic.map(p => p.name).join(", "),
               updatedAt: new Date()
             }
           : d
@@ -119,6 +133,7 @@ const DomainForm = () => {
         status,
         communicationPolicy: communicationPolicies.map(p => p.name).join(", "),
         eligibilityPolicy: eligibilityPolicies.map(p => p.name).join(", "),
+        triggerLogic: triggerLogic.map(p => p.name).join(", "),
         products: [],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -135,16 +150,20 @@ const DomainForm = () => {
   const handleAddPolicy = (artifacts: PolicyArtifact[]) => {
     if (policyType === "communication") {
       setCommunicationPolicies([...communicationPolicies, ...artifacts]);
-    } else {
+    } else if (policyType === "eligibility") {
       setEligibilityPolicies([...eligibilityPolicies, ...artifacts]);
+    } else {
+      setTriggerLogic([...triggerLogic, ...artifacts]);
     }
   };
 
-  const handleRemovePolicy = (type: "communication" | "eligibility", artifactId: string) => {
+  const handleRemovePolicy = (type: "communication" | "eligibility" | "trigger", artifactId: string) => {
     if (type === "communication") {
       setCommunicationPolicies(communicationPolicies.filter(p => p.id !== artifactId));
-    } else {
+    } else if (type === "eligibility") {
       setEligibilityPolicies(eligibilityPolicies.filter(p => p.id !== artifactId));
+    } else {
+      setTriggerLogic(triggerLogic.filter(p => p.id !== artifactId));
     }
   };
 
@@ -355,23 +374,53 @@ const DomainForm = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {communicationPolicies.length === 0 ? (
+              {/* Global Policies */}
+              {globalPolicies.communicationPolicy && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <InheritedPolicyBadge level="global" />
+                    <span className="text-sm text-muted-foreground">Inherited from global settings</span>
+                  </div>
+                  <div className="space-y-3">
+                    {globalPolicies.communicationPolicy.split(", ").filter(p => p).map((name, index) => (
+                      <PolicyCard
+                        key={`global-comm-${index}`}
+                        artifact={{
+                          id: `global-comm-${name}`,
+                          name,
+                          description: "Global communication policy",
+                          type: "ruleset",
+                          version: "1.0",
+                          lastUpdated: new Date(),
+                        }}
+                        onRemove={() => {}}
+                        showRemove={false}
+                      />
+                    ))}
+                  </div>
+                  {communicationPolicies.length > 0 && <div className="my-4 border-t" />}
+                </div>
+              )}
+              {/* Domain-Specific Policies */}
+              {communicationPolicies.length === 0 && !globalPolicies.communicationPolicy ? (
                 <div className="text-center py-8 border-2 border-dashed rounded-lg">
                   <p className="text-sm text-muted-foreground">
                     No communication policies assigned yet
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {communicationPolicies.map((policy) => (
-                    <PolicyCard
-                      key={policy.id}
-                      artifact={policy}
-                      onRemove={() => handleRemovePolicy("communication", policy.id)}
-                      showRemove={false}
-                    />
-                  ))}
-                </div>
+                communicationPolicies.length > 0 && (
+                  <div className="space-y-3">
+                    {communicationPolicies.map((policy) => (
+                      <PolicyCard
+                        key={policy.id}
+                        artifact={policy}
+                        onRemove={() => handleRemovePolicy("communication", policy.id)}
+                        showRemove={false}
+                      />
+                    ))}
+                  </div>
+                )
               )}
             </CardContent>
           </Card>
@@ -406,6 +455,70 @@ const DomainForm = () => {
                     />
                   ))}
                 </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Trigger Logic */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Trigger Logic</CardTitle>
+                  <CardDescription>
+                    Define when NBA calculations should be triggered
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Global Trigger Logic */}
+              {globalPolicies.triggerLogic && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <InheritedPolicyBadge level="global" />
+                    <span className="text-sm text-muted-foreground">Inherited from global settings</span>
+                  </div>
+                  <div className="space-y-3">
+                    {globalPolicies.triggerLogic.split(", ").filter(p => p).map((name, index) => (
+                      <PolicyCard
+                        key={`global-trigger-${index}`}
+                        artifact={{
+                          id: `global-trigger-${name}`,
+                          name,
+                          description: "Global trigger logic",
+                          type: "ruleset",
+                          version: "1.0",
+                          lastUpdated: new Date(),
+                        }}
+                        onRemove={() => {}}
+                        showRemove={false}
+                      />
+                    ))}
+                  </div>
+                  {triggerLogic.length > 0 && <div className="my-4 border-t" />}
+                </div>
+              )}
+              {/* Domain-Specific Trigger Logic */}
+              {triggerLogic.length === 0 && !globalPolicies.triggerLogic ? (
+                <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    No trigger logic assigned yet
+                  </p>
+                </div>
+              ) : (
+                triggerLogic.length > 0 && (
+                  <div className="space-y-3">
+                    {triggerLogic.map((policy) => (
+                      <PolicyCard
+                        key={policy.id}
+                        artifact={policy}
+                        onRemove={() => handleRemovePolicy("trigger", policy.id)}
+                        showRemove={false}
+                      />
+                    ))}
+                  </div>
+                )
               )}
             </CardContent>
           </Card>

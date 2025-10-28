@@ -64,13 +64,37 @@ const MOCK_ARTIFACTS: PolicyArtifact[] = [
     version: "1.8.0",
     lastUpdated: new Date("2024-01-25"),
   },
+  {
+    id: "7",
+    name: "Credit Score Change Detector",
+    description: "Trigger when customer credit score changes by 5% or more",
+    type: "ruleset",
+    version: "1.0.0",
+    lastUpdated: new Date("2024-02-20"),
+  },
+  {
+    id: "8",
+    name: "Profile Update Trigger",
+    description: "Trigger NBA workflow when customer profile is updated",
+    type: "decision-tree",
+    version: "1.2.0",
+    lastUpdated: new Date("2024-02-22"),
+  },
+  {
+    id: "9",
+    name: "Transaction Volume Monitor",
+    description: "Monitor changes in customer transaction volume patterns",
+    type: "ml-model",
+    version: "2.1.0",
+    lastUpdated: new Date("2024-02-25"),
+  },
 ];
 
 interface PolicySelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (artifacts: PolicyArtifact[]) => void;
-  type: "communication" | "eligibility";
+  type: "communication" | "eligibility" | "trigger";
   context: "domain" | "product" | "action";
 }
 
@@ -133,25 +157,37 @@ export const PolicySelector = ({ open, onOpenChange, onSelect, type, context }: 
     return artifactType.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   };
 
+  const getTypeLabel = () => {
+    if (type === "communication") return "Communication";
+    if (type === "eligibility") return "Eligibility";
+    return "Trigger Logic";
+  };
+
+  const getTypeDescription = () => {
+    if (type === "communication") return "how to communicate";
+    if (type === "eligibility") return "who is eligible for";
+    return "when to trigger NBA for";
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle>Select {type === "communication" ? "Communication" : "Eligibility"} Policies</DialogTitle>
+          <DialogTitle>Select {getTypeLabel()} {type === "trigger" ? "Artifacts" : "Policies"}</DialogTitle>
           <DialogDescription>
             {context === "domain" ? (
               <>
-                Choose artifacts to define {type === "communication" ? "how to communicate" : "who is eligible for"} this domain.{" "}
-                <strong>These policies will be inherited by all child products and actions.</strong>
+                Choose artifacts to define {getTypeDescription()} this domain.{" "}
+                <strong>These will be inherited by all child products and actions.</strong>
               </>
             ) : context === "product" ? (
               <>
-                Choose artifacts to define {type === "communication" ? "how to communicate" : "who is eligible for"} this product.{" "}
-                <strong>These policies will be inherited by all child actions.</strong>
+                Choose artifacts to define {getTypeDescription()} this product.{" "}
+                <strong>These will be inherited by all child actions.</strong>
               </>
             ) : (
               <>
-                Choose artifacts to define {type === "communication" ? "how to communicate" : "who is eligible for"} this action.
+                Choose artifacts to define {getTypeDescription()} this action.
               </>
             )}
           </DialogDescription>
@@ -227,7 +263,7 @@ export const PolicySelector = ({ open, onOpenChange, onSelect, type, context }: 
                   </div>
                   <div className="flex-1">
                     <h4 className="font-medium text-sm text-primary">Add New Artifact</h4>
-                    <p className="text-xs text-muted-foreground">Create a custom {type === "communication" ? "communication" : "eligibility"} policy artifact</p>
+                    <p className="text-xs text-muted-foreground">Create a custom {getTypeLabel().toLowerCase()} artifact</p>
                   </div>
                 </div>
               </button>

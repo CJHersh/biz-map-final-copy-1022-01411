@@ -31,7 +31,7 @@ const ProductForm = () => {
   const productId = searchParams.get("id");
   const defaultDomainId = searchParams.get("domainId");
   
-  const { domains, setDomains, actions, setActions } = useBusinessMap();
+  const { domains, setDomains, actions, setActions, globalPolicies } = useBusinessMap();
 
   const existingProduct = productId 
     ? domains.flatMap(d => d.products).find((p) => p.id === productId) 
@@ -46,10 +46,11 @@ const ProductForm = () => {
   
   const [communicationPolicies, setCommunicationPolicies] = useState<PolicyArtifact[]>([]);
   const [eligibilityPolicies, setEligibilityPolicies] = useState<PolicyArtifact[]>([]);
+  const [triggerLogic, setTriggerLogic] = useState<PolicyArtifact[]>([]);
   const [removedInheritedCommPolicies, setRemovedInheritedCommPolicies] = useState<Set<string>>(new Set());
   const [removedInheritedEligPolicies, setRemovedInheritedEligPolicies] = useState<Set<string>>(new Set());
   const [showPolicySelector, setShowPolicySelector] = useState(false);
-  const [policyType, setPolicyType] = useState<"communication" | "eligibility">("communication");
+  const [policyType, setPolicyType] = useState<"communication" | "eligibility" | "trigger">("communication");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Update form state when product data loads from localStorage
@@ -203,6 +204,7 @@ const ProductForm = () => {
         eligibilityPolicy: eligibilityPolicies.length > 0
           ? allEligibilityPolicies.map(p => p.name).join(", ")
           : "",
+        triggerLogic: "",
         actionCount: 0,
         createdAt: new Date(),
         updatedAt: new Date(),

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, ChevronRight, Edit, Trash2, FolderTree, ChevronDown } from "lucide-react";
+import { Plus, ChevronRight, Edit, Trash2, FolderTree, ChevronDown, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,13 +13,15 @@ import { useNavigate } from "react-router-dom";
 import { DomainDialog } from "@/components/DomainDialog";
 import { ProductDialog } from "@/components/ProductDialog";
 import { DeleteDialog } from "@/components/DeleteDialog";
+import { GlobalPoliciesDialog } from "@/components/GlobalPoliciesDialog";
 import { toast } from "@/hooks/use-toast";
 import { useBusinessMap } from "@/hooks/use-business-map";
 import type { Domain, Product } from "@/hooks/use-business-map";
 
 const MapBuilder = () => {
   const navigate = useNavigate();
-  const { domains, setDomains, actions, setActions } = useBusinessMap();
+  const { domains, setDomains, actions, setActions, globalPolicies, setGlobalPolicies } = useBusinessMap();
+  const [globalPoliciesDialogOpen, setGlobalPoliciesDialogOpen] = useState(false);
   const [expandedDomains, setExpandedDomains] = useState<Set<string>>(new Set());
   
   const [domainDialogOpen, setDomainDialogOpen] = useState(false);
@@ -187,25 +189,31 @@ const MapBuilder = () => {
               <h1 className="text-3xl font-bold text-foreground">Business Map Builder</h1>
               <p className="text-muted-foreground mt-1">Create and manage your domain and product structure</p>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create New
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => { setEditingDomain(undefined); setDomainDialogOpen(true); }}>
-                  <FolderTree className="mr-2 h-4 w-4" />
-                  Create Domain
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleAddProduct()}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Product
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setGlobalPoliciesDialogOpen(true)}>
+                <Globe className="mr-2 h-4 w-4" />
+                Global Policies
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create New
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => { setEditingDomain(undefined); setDomainDialogOpen(true); }}>
+                    <FolderTree className="mr-2 h-4 w-4" />
+                    Create Domain
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleAddProduct()}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Product
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>
@@ -423,6 +431,13 @@ const MapBuilder = () => {
             : "Are you sure you want to delete this product? All actions within it will also be deleted. This action cannot be undone."
         }
         itemName={deleteTarget?.name || ""}
+      />
+
+      <GlobalPoliciesDialog
+        open={globalPoliciesDialogOpen}
+        onOpenChange={setGlobalPoliciesDialogOpen}
+        globalPolicies={globalPolicies}
+        onSave={setGlobalPolicies}
       />
     </div>
   );

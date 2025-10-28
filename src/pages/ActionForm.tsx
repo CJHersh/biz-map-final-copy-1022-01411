@@ -35,7 +35,7 @@ const ActionForm = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const actionId = searchParams.get("id");
-  const { domains, actions, setActions } = useBusinessMap();
+  const { domains, actions, setActions, globalPolicies } = useBusinessMap();
 
   const existingAction = actionId ? actions.find((a) => a.id === actionId) : undefined;
   const isEditMode = !!existingAction;
@@ -66,10 +66,11 @@ const ActionForm = () => {
   // Policy artifacts
   const [communicationPolicies, setCommunicationPolicies] = useState<PolicyArtifact[]>([]);
   const [eligibilityPolicies, setEligibilityPolicies] = useState<PolicyArtifact[]>([]);
+  const [triggerLogic, setTriggerLogic] = useState<PolicyArtifact[]>([]);
   const [removedInheritedCommPolicies, setRemovedInheritedCommPolicies] = useState<Set<string>>(new Set());
   const [removedInheritedEligPolicies, setRemovedInheritedEligPolicies] = useState<Set<string>>(new Set());
   const [showPolicySelector, setShowPolicySelector] = useState(false);
-  const [policyType, setPolicyType] = useState<"communication" | "eligibility">("communication");
+  const [policyType, setPolicyType] = useState<"communication" | "eligibility" | "trigger">("communication");
   const [inheritedPoliciesInitialized, setInheritedPoliciesInitialized] = useState(false);
   
   // Delete dialog
@@ -211,6 +212,7 @@ const ActionForm = () => {
       eligibilityPolicy: eligibilityPolicies.length > 0
         ? allEligibilityPolicies.map(p => p.name).join(", ")
         : "",
+      triggerLogic: "",
       status,
       volume: volume ? parseFloat(volume) : undefined,
       impressionRate: impressionRate ? parseFloat(impressionRate) : undefined,
