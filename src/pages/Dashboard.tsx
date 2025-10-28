@@ -144,6 +144,16 @@ const Dashboard = () => {
                 <Button variant="outline" onClick={() => setGlobalPoliciesDialogOpen(true)}>
                   <Globe className="mr-2 h-4 w-4" />
                   Global Policies
+                  {(() => {
+                    const commCount = globalPolicies.communicationPolicy?.split(',').filter(p => p.trim()).length || 0;
+                    const triggerCount = globalPolicies.triggerLogic?.split(',').filter(p => p.trim()).length || 0;
+                    const total = commCount + triggerCount;
+                    return total > 0 ? (
+                      <Badge variant="secondary" className="ml-2">
+                        {total}
+                      </Badge>
+                    ) : null;
+                  })()}
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
