@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { DomainDialog } from "@/components/DomainDialog";
 import { ProductDialog } from "@/components/ProductDialog";
 import { DeleteDialog } from "@/components/DeleteDialog";
-import { GlobalPoliciesDialog } from "@/components/GlobalPoliciesDialog";
+import { GlobalPoliciesSheet } from "@/components/GlobalPoliciesSheet";
 import { toast } from "@/hooks/use-toast";
 import { useBusinessMap } from "@/hooks/use-business-map";
 import type { Domain, Product } from "@/hooks/use-business-map";
@@ -433,7 +433,7 @@ const MapBuilder = () => {
         itemName={deleteTarget?.name || ""}
       />
 
-      <GlobalPoliciesDialog
+      <GlobalPoliciesSheet
         open={globalPoliciesDialogOpen}
         onOpenChange={setGlobalPoliciesDialogOpen}
         globalPolicies={globalPolicies}

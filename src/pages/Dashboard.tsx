@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useBusinessMap } from "@/hooks/use-business-map";
-import { GlobalPoliciesDialog } from "@/components/GlobalPoliciesDialog";
+import { GlobalPoliciesSheet } from "@/components/GlobalPoliciesSheet";
 import type { Domain, Product } from "@/hooks/use-business-map";
 
 const Dashboard = () => {
@@ -291,7 +291,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      <GlobalPoliciesDialog
+      <GlobalPoliciesSheet
         open={globalPoliciesDialogOpen}
         onOpenChange={setGlobalPoliciesDialogOpen}
         globalPolicies={globalPolicies}
