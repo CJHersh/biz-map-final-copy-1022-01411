@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Globe, X } from "lucide-react";
+import { Globe } from "lucide-react";
 import { PolicySelector } from "@/components/PolicySelector";
 import { PolicyCard } from "@/components/PolicyCard";
 import { toast } from "@/hooks/use-toast";
@@ -124,9 +124,9 @@ export const GlobalPoliciesSheet = ({
             {/* Global Communication Policies */}
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="flex items-center gap-2 text-lg">
+                    <CardTitle className="flex items-center gap-2">
                       Global Communication Policies
                       <Badge variant="outline" className="ml-2">
                         <Globe className="h-3 w-3 mr-1" />
@@ -137,28 +137,20 @@ export const GlobalPoliciesSheet = ({
                       Define global communication policies that apply across all domains
                     </CardDescription>
                   </div>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setPolicyType("communication");
+                      setShowPolicySelector(true);
+                    }}
+                  >
+                    Add Policy
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                {communicationPolicies.length === 0 ? (
-                  <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      No global communication policies configured yet
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setPolicyType("communication");
-                        setShowPolicySelector(true);
-                      }}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Policy
-                    </Button>
-                  </div>
-                ) : (
-                  <>
+                {communicationPolicies.length > 0 ? (
+                  <div className="space-y-3">
                     {communicationPolicies.map((policy) => (
                       <PolicyCard
                         key={policy.id}
@@ -167,19 +159,9 @@ export const GlobalPoliciesSheet = ({
                         showRemove={true}
                       />
                     ))}
-                    <Button
-                      onClick={() => {
-                        setPolicyType("communication");
-                        setShowPolicySelector(true);
-                      }}
-                      size="sm"
-                      variant="outline"
-                      className="w-full"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Another Policy
-                    </Button>
-                  </>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No global communication policies configured yet</p>
                 )}
               </CardContent>
             </Card>
@@ -187,9 +169,9 @@ export const GlobalPoliciesSheet = ({
             {/* Global Trigger Logic */}
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="flex items-center gap-2 text-lg">
+                    <CardTitle className="flex items-center gap-2">
                       Global Trigger Logic
                       <Badge variant="outline" className="ml-2">
                         <Globe className="h-3 w-3 mr-1" />
@@ -200,28 +182,20 @@ export const GlobalPoliciesSheet = ({
                       Define global trigger logic that applies across all domains
                     </CardDescription>
                   </div>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setPolicyType("trigger");
+                      setShowPolicySelector(true);
+                    }}
+                  >
+                    Add Trigger
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                {triggerLogic.length === 0 ? (
-                  <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      No global trigger logic configured yet
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setPolicyType("trigger");
-                        setShowPolicySelector(true);
-                      }}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Trigger
-                    </Button>
-                  </div>
-                ) : (
-                  <>
+                {triggerLogic.length > 0 ? (
+                  <div className="space-y-3">
                     {triggerLogic.map((policy) => (
                       <PolicyCard
                         key={policy.id}
@@ -230,19 +204,9 @@ export const GlobalPoliciesSheet = ({
                         showRemove={true}
                       />
                     ))}
-                    <Button
-                      onClick={() => {
-                        setPolicyType("trigger");
-                        setShowPolicySelector(true);
-                      }}
-                      size="sm"
-                      variant="outline"
-                      className="w-full"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Another Trigger
-                    </Button>
-                  </>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No global trigger logic configured yet</p>
                 )}
               </CardContent>
             </Card>
