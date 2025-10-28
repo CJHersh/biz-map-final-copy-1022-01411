@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, FolderTree, ListChecks, BarChart3, ChevronRight, ChevronDown, Package, Clock } from "lucide-react";
+import { Plus, FolderTree, ListChecks, BarChart3, ChevronRight, ChevronDown, Package, Clock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,13 +11,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useBusinessMap } from "@/hooks/use-business-map";
+import { GlobalPoliciesDialog } from "@/components/GlobalPoliciesDialog";
 import type { Domain, Product } from "@/hooks/use-business-map";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { domains, setDomains, actions, setActions } = useBusinessMap();
+  const { domains, setDomains, actions, setActions, globalPolicies, setGlobalPolicies } = useBusinessMap();
   const [expandedDomains, setExpandedDomains] = useState<Set<string>>(new Set());
   const [compactMode, setCompactMode] = useState(false);
+  const [globalPoliciesDialogOpen, setGlobalPoliciesDialogOpen] = useState(false);
 
   const stats = {
     totalDomains: domains.length,
@@ -139,6 +141,10 @@ const Dashboard = () => {
                     className="w-4 h-4 cursor-pointer"
                   />
                 </div>
+                <Button variant="outline" onClick={() => setGlobalPoliciesDialogOpen(true)}>
+                  <Globe className="mr-2 h-4 w-4" />
+                  Global Policies
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button>
@@ -284,6 +290,13 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      <GlobalPoliciesDialog
+        open={globalPoliciesDialogOpen}
+        onOpenChange={setGlobalPoliciesDialogOpen}
+        globalPolicies={globalPolicies}
+        onSave={setGlobalPolicies}
+      />
     </div>
   );
 };
